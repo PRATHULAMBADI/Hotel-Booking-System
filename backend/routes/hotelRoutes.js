@@ -15,9 +15,11 @@ const {
     adminOnly
 } = require('../middleware/authMiddleware')
 
+const upload = require('../middleware/uploadMiddleware')
+
 // Admin routes
-router.post('/', protect, adminOnly, createHotel)
-router.put('/:id', protect, adminOnly, updateHotel)
+router.post('/', protect, adminOnly, upload.single('image'), createHotel )
+router.put('/:id', protect, adminOnly, upload.single('image'), updateHotel)
 router.delete('/:id', protect, adminOnly, deleteHotel)
 
 // Public routes

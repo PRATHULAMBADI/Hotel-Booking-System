@@ -1,13 +1,18 @@
-const express = require('express')
 const dotenv = require('dotenv')
+const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const dns = require('dns')
+const path = require('path')
 
 const connectDB = require('./config/db')
 const authRoutes = require('./routes/authRoutes')
 const hotelRoutes = require('./routes/hotelRoutes')
 const roomRoutes = require('./routes/roomRoutes')
+const bookingRoutes = require('./routes/bookingRoutes')
+const reviewRoutes = require('./routes/reviewRoutes')
+const adminRoutes = require('./routes/adminRoutes')
+const offerRoutes = require('./routes/offerRoutes')
 
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
@@ -31,9 +36,20 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/hotels', hotelRoutes)
 app.use('/api/rooms', roomRoutes)
+app.use('/api/bookings', bookingRoutes)
+app.use('/api/reviews', reviewRoutes)
+app.use('/api/offers', offerRoutes)
+app.use('/api/admin',adminRoutes)
+app.use(
+    '/uploads',
+    express.static(path.join(__dirname, 'uploads'))
+)
+
 
 const PORT = process.env.PORT || 5000
 
 app.listen(PORT, () => {
+    // console.log(process.env.EMAIL_USER)
+    // console.log(process.env.EMAIL_PASSWORD)
     console.log(`Server running on PORT: ${PORT}`)
 })

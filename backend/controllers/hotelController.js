@@ -3,12 +3,16 @@ const Hotel = require('../models/Hotel')
 // Create hotel
 exports.createHotel = async (req, res) => {
     try {
-        const hotel = await Hotel.create(req.body)
+        const hotel = await Hotel.create({
+            ...req.body,
+            image: req.file ? `/uploads/${req.file.filename}` : ''
+        })
 
         res.status(201).json({
             message: 'Hotel created successfully',
             hotel
         })
+
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -54,10 +58,21 @@ exports.getHotelById = async (req, res) => {
 // Update hotel
 exports.updateHotel = async (req, res) => {
     try {
+
+        const updateData = {
+            ...req.body
+        }
+
+        if (req.file) {
+            updateData.image = `/uploads/${req.file.filename}`
+        }
+
         const hotel = await Hotel.findByIdAndUpdate(
             req.params.id,
-            req.body,
-            { new: true }
+            updateData,
+            {
+                new: true
+            }
         )
 
         if (!hotel) {
@@ -70,6 +85,7 @@ exports.updateHotel = async (req, res) => {
             message: 'Hotel updated successfully',
             hotel
         })
+
     } catch (error) {
         res.status(500).json({
             message: error.message
