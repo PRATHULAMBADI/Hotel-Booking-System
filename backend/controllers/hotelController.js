@@ -1,6 +1,5 @@
 const Hotel = require('../models/Hotel')
 
-// Create hotel
 exports.createHotel = async (req, res) => {
     try {
         const hotel = await Hotel.create({
@@ -20,7 +19,6 @@ exports.createHotel = async (req, res) => {
     }
 }
 
-// Get all hotels
 exports.getHotels = async (req, res) => {
     try {
         const hotels = await Hotel.find()
@@ -36,7 +34,6 @@ exports.getHotels = async (req, res) => {
     }
 }
 
-// Get single hotel
 exports.getHotelById = async (req, res) => {
     try {
         const hotel = await Hotel.findById(req.params.id)
@@ -55,7 +52,6 @@ exports.getHotelById = async (req, res) => {
     }
 }
 
-// Update hotel
 exports.updateHotel = async (req, res) => {
     try {
 
@@ -71,7 +67,7 @@ exports.updateHotel = async (req, res) => {
             req.params.id,
             updateData,
             {
-                new: true
+                returnDocument: 'after'
             }
         )
 
@@ -87,13 +83,15 @@ exports.updateHotel = async (req, res) => {
         })
 
     } catch (error) {
+
+        console.error(error)
+
         res.status(500).json({
             message: error.message
         })
     }
 }
 
-// Delete hotel
 exports.deleteHotel = async (req, res) => {
     try {
         const hotel = await Hotel.findByIdAndDelete(req.params.id)

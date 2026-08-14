@@ -135,8 +135,10 @@ exports.searchRooms = async (req, res) => {
         })
 
         if (hotels.length === 0) {
-            return res.status(404).json({
-                message: 'No hotels found'
+            return res.status(200).json({
+                count: 0,
+                rooms: [],
+                message: 'No hotels found in this location'
             })
         }
 
@@ -165,7 +167,11 @@ exports.searchRooms = async (req, res) => {
 
         res.status(200).json({
             count: availableRooms.length,
-            rooms: availableRooms
+            rooms: availableRooms,
+            message:
+                availableRooms.length === 0
+                    ? 'No rooms available for the selected dates'
+                    : 'Rooms found successfully'
         })
 
     } catch (error) {

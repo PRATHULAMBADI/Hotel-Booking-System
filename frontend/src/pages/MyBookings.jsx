@@ -6,8 +6,7 @@ function MyBookings() {
 
     const getBookings = async () => {
         try {
-            const token = localStorage.getItem('token')
-
+            const token = sessionStorage.getItem('token')
             const response = await api.get('/bookings/my', {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -22,8 +21,8 @@ function MyBookings() {
 
     const cancelBooking = async (id) => {
         try {
-            const token = localStorage.getItem('token')
-
+            const token = sessionStorage.getItem('token')
+            
             await api.put(
                 `/bookings/${id}/cancel`,
                 {},

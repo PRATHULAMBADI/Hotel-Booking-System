@@ -58,14 +58,14 @@ function Register() {
         <div className='min-h-screen bg-slate-50 flex items-center justify-center px-6'>
             <div className='bg-white w-full max-w-md p-8 rounded-2xl shadow-md'>
 
-                <h2 className='text-3xl font-bold text-center text-slate-800 mb-6'>
-                    Register
+                <h2 className='text-3xl font-bold text-center text-green-800 mb-6'>
+                    REGISTER
                 </h2>
 
                 <form onSubmit={handleSubmit} className='space-y-4'>
 
                     <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+                        className='w-full px-4 py-3 border-1 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                         type='text'
                         name='name'
                         placeholder='Full Name'
@@ -77,7 +77,7 @@ function Register() {
                     />
 
                     <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+                        className='w-full px-4 py-3 border-1 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                         type='email'
                         name='email'
                         placeholder='Email'
@@ -87,7 +87,7 @@ function Register() {
                     />
 
                     <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+                        className='w-full px-4 py-3 border-1 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                         type='password'
                         name='password'
                         placeholder='Password'
@@ -99,7 +99,7 @@ function Register() {
                     />
 
                     <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+                        className='w-full px-4 py-3 border-1 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                         type='text'
                         name='phone'
                         placeholder='Phone Number'

@@ -4,10 +4,11 @@ import api from '../../services/api'
 function ManageOffers() {
     const [offers, setOffers] = useState([])
 
-    const [formData, setFormData] = useState({
+   const [formData, setFormData] = useState({
         title: '',
         description: '',
         discount: '',
+        couponCode: '',
         startDate: '',
         endDate: '',
         status: 'Active'
@@ -21,7 +22,16 @@ function ManageOffers() {
 
     const fetchOffers = async () => {
         try {
-            const response = await api.get('/offers')
+            const token = sessionStorage.getItem('token')
+
+        const response = await api.get(
+            '/offers/admin',
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
             setOffers(response.data)
         } catch (error) {
             console.log(error)
@@ -36,53 +46,82 @@ function ManageOffers() {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+    e.preventDefault()
+
+    const token = sessionStorage.getItem('token')
 
         try {
+
             if (editingId) {
-                await api.put(`/offers/${editingId}`, formData)
+
+                await api.put(
+                    `/offers/${editingId}`,
+                    formData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+
             } else {
-                await api.post('/offers', formData)
+
+                await api.post(
+                    '/offers',
+                    formData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+
             }
 
             setFormData({
                 title: '',
                 description: '',
                 discount: '',
+                couponCode: '',
                 startDate: '',
                 endDate: '',
                 status: 'Active'
             })
 
             setEditingId(null)
+
             fetchOffers()
 
         } catch (error) {
+
             console.log(error)
+
         }
     }
-
-    const editOffer = (offer) => {
-        setEditingId(offer._id)
-
-        setFormData({
-            title: offer.title,
-            description: offer.description,
-            discount: offer.discount,
-            startDate: offer.startDate?.slice(0, 10),
-            endDate: offer.endDate?.slice(0, 10),
-            status: offer.status
-        })
-    }
-
     const deleteOffer = async (id) => {
-        try {
-            await api.delete(`/offers/${id}`)
-            fetchOffers()
-        } catch (error) {
-            console.log(error)
-        }
+
+    const token = sessionStorage.getItem('token')
+
+    try {
+
+        await api.delete(
+            `/offers/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+
+        fetchOffers()
+
+    } catch (error) {
+
+        console.log(error)
+
     }
+
+}
 
     return (
         <div className="p-6">
@@ -124,6 +163,16 @@ function ManageOffers() {
                         onChange={handleChange}
                         className="w-full border p-2 rounded"
                     />
+
+                    <input
+                        type='text'
+                        name='couponCode'
+                        placeholder='Coupon Code'
+                        value={formData.couponCode}
+                        onChange={handleChange}
+                        className='w-full border p-2 rounded'
+                    />
+
 
                     <input
                         type="date"
@@ -179,7 +228,9 @@ function ManageOffers() {
                             <th className="p-3 text-left">
                                 Discount
                             </th>
-
+                            <th className='p-3 text-left'>
+                                Coupon Code
+                            </th>
                             <th className="p-3 text-left">
                                 Valid Date
                             </th>
@@ -214,10 +265,22 @@ function ManageOffers() {
                                         {offer.discount}%
                                     </td>
 
+                                    <td className='p-3'>
+                                        {offer.couponCode}
+                                    </td>
+
                                     <td className="p-3">
-                                        {offer.startDate?.slice(0, 10)}
+                                        {new Date(offer.startDate).toLocaleDateString('en-IN', {
+                                            day: '2-digit',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
                                         <br />
-                                        {offer.endDate?.slice(0, 10)}
+                                        {new Date(offer.endDate).toLocaleDateString('en-IN', {
+                                            day: '2-digit',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
                                     </td>
 
                                     <td className="p-3">

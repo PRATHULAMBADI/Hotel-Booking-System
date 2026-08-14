@@ -11,36 +11,82 @@ exports.createBooking = async (req, res) => {
             roomId,
             checkIn,
             checkOut,
-            guests
+            guests,
+            totalPrice,
+            couponCode,
+            discount,
+            orderId,
+            paymentId
         } = req.body
+
+        if (
+            !hotelId ||
+            !roomId ||
+            !checkIn ||
+            !checkOut ||
+            !guests
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: 'All booking details are required'
+            })
+        }
+
+        if (!orderId || !paymentId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment is required to create booking'
+            })
+        }
 
         const room = await Room.findById(roomId)
 
         if (!room) {
             return res.status(404).json({
+                success: false,
                 message: 'Room not found'
+            })
+        }
+
+        const checkInDate = new Date(checkIn)
+        const checkOutDate = new Date(checkOut)
+
+        if (checkOutDate <= checkInDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Check-out date must be after check-in date'
             })
         }
 
         const existingBooking = await Booking.findOne({
             roomId,
             bookingStatus: 'Booked',
-            checkIn: { $lt: new Date(checkOut) },
-            checkOut: { $gt: new Date(checkIn) }
+            checkIn: {
+                $lt: checkOutDate
+            },
+            checkOut: {
+                $gt: checkInDate
+            }
         })
 
         if (existingBooking) {
             return res.status(400).json({
+                success: false,
                 message: 'Room is already booked for selected dates'
             })
         }
 
         const totalDays = Math.ceil(
-            (new Date(checkOut) - new Date(checkIn)) /
+            (checkOutDate - checkInDate) /
             (1000 * 60 * 60 * 24)
         )
 
-        const totalPrice = totalDays * room.price
+        const calculatedAmount = totalDays * room.price
+
+        const finalAmount =
+            totalPrice && totalPrice > 0
+                ? totalPrice
+                : calculatedAmount
 
         const booking = await Booking.create({
             userId: req.user.id,
@@ -49,72 +95,87 @@ exports.createBooking = async (req, res) => {
             checkIn,
             checkOut,
             guests,
-            totalPrice
+            totalPrice: finalAmount,
+            couponCode: couponCode || '',
+            discount: discount || 0,
+            orderId,
+            paymentId,
+            paymentStatus: 'Paid',
+            bookingStatus: 'Booked'
+        })
+
+        res.status(201).json({
+            success: true,
+            message: 'Booking created successfully',
+            booking
         })
 
         const user = await User.findById(req.user.id)
 
         if (user) {
-            await sendEmail(
+            sendEmail(
                 user.email,
                 'Booking Confirmed | Hotel Booking System',
                 `
                 <div style="max-width:600px;margin:auto;font-family:Arial;background:#ffffff;border:1px solid #ddd;border-radius:10px;overflow:hidden;">
-
                     <div style="background:#2563eb;color:white;padding:20px;text-align:center;">
                         <h2>Hotel Booking System</h2>
-                        <p>Your reservation is confirmed</p>
+                        <p>Your booking has been confirmed</p>
                     </div>
 
                     <div style="padding:25px;">
-
                         <h3>Hello ${user.name},</h3>
 
                         <p>
-                            Thank you for choosing Hotel Booking System.
-                            Your booking has been confirmed successfully.
+                            Thank you for choosing us.
+                            Your room has been booked successfully.
                         </p>
 
-                        <h3>Booking Details</h3>
-
                         <table style="width:100%;border-collapse:collapse;">
-
                             <tr>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     Check In
                                 </td>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     ${checkIn}
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     Check Out
                                 </td>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     ${checkOut}
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     Guests
                                 </td>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     ${guests}
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding:10px;border:1px solid #ddd;">
+                                <td style="border:1px solid #ddd;padding:10px;">
                                     Total Amount
                                 </td>
-                                <td style="padding:10px;border:1px solid #ddd;color:green;font-weight:bold;">
-                                    ₹${totalPrice}
+                                <td style="border:1px solid #ddd;padding:10px;color:green;font-weight:bold;">
+                                    ₹${finalAmount}
                                 </td>
                             </tr>
 
+                            <tr>
+                                <td style="border:1px solid #ddd;padding:10px;">
+                                    Payment Status
+                                </td>
+                                <td style="border:1px solid #ddd;padding:10px;">
+                                    Paid
+                                </td>
+                            </tr>
                         </table>
 
                         <p style="margin-top:20px;">
@@ -122,41 +183,31 @@ exports.createBooking = async (req, res) => {
                         </p>
 
                         <p>
-                            We hope you have a comfortable stay.
+                            Have a pleasant stay.
                         </p>
-
-                        <p>
-                            Regards,<br>
-                            <strong>Hotel Booking System Team</strong>
-                        </p>
-
                     </div>
-
-                    <div style="background:#111827;color:white;text-align:center;padding:12px;">
-                        © 2026 Hotel Booking System
-                    </div>
-
                 </div>
                 `
-            )
+            ).catch(error => {
+                console.log('Email sending failed:', error.message)
+            })
         }
-
-        res.status(201).json({
-            message: 'Booking created successfully',
-            booking
-        })
-
     } catch (error) {
+        console.log(error)
+
         res.status(500).json({
+            success: false,
             message: error.message
         })
     }
 }
 
 
-// Get Logged-in User Bookings
+// Get My Bookings
 exports.getMyBookings = async (req, res) => {
+
     try {
+
         const bookings = await Booking.find({
             userId: req.user.id
         })
@@ -164,32 +215,47 @@ exports.getMyBookings = async (req, res) => {
             .populate('roomId')
 
         res.status(200).json({
+            success: true,
             count: bookings.length,
             bookings
         })
 
     } catch (error) {
+
         res.status(500).json({
+            success: false,
             message: error.message
         })
-    }
-}
 
+    }
+
+}
 
 // Cancel Booking
 exports.cancelBooking = async (req, res) => {
+
     try {
+
         const booking = await Booking.findById(req.params.id)
 
         if (!booking) {
             return res.status(404).json({
+                success: false,
                 message: 'Booking not found'
             })
         }
 
         if (booking.userId.toString() !== req.user.id) {
             return res.status(403).json({
+                success: false,
                 message: 'Unauthorized'
+            })
+        }
+
+        if (booking.bookingStatus === 'Cancelled') {
+            return res.status(400).json({
+                success: false,
+                message: 'Booking already cancelled'
             })
         }
 
@@ -198,34 +264,51 @@ exports.cancelBooking = async (req, res) => {
         await booking.save()
 
         res.status(200).json({
+            success: true,
             message: 'Booking cancelled successfully',
             booking
         })
 
     } catch (error) {
+
+        console.log(error)
+
         res.status(500).json({
+            success: false,
             message: error.message
         })
+
     }
+
 }
 
 
 // Get All Bookings (Admin)
 exports.getAllBookings = async (req, res) => {
+
     try {
+
         const bookings = await Booking.find()
             .populate('userId', 'name email')
             .populate('hotelId')
             .populate('roomId')
+            .sort({ createdAt: -1 })
 
         res.status(200).json({
+            success: true,
             count: bookings.length,
             bookings
         })
 
     } catch (error) {
+
+        console.log(error)
+
         res.status(500).json({
+            success: false,
             message: error.message
         })
+
     }
+
 }

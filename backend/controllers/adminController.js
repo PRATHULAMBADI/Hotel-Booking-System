@@ -7,13 +7,9 @@ exports.getDashboard = async (req,res)=>{
     try {
 
         const users = await User.countDocuments()
-
         const hotels = await Hotel.countDocuments()
-
         const rooms = await Room.countDocuments()
-
         const bookings = await Booking.countDocuments()
-
         const revenue = await Booking.aggregate([
             {
                 $group:{

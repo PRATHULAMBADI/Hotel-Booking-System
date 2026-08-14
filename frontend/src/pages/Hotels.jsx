@@ -19,12 +19,12 @@ useEffect(() => {
 
 return (
     <div className="min-h-screen bg-slate-50 px-6 py-10">
-        <h2 className="text-3xl font-bold text-slate-800 text-center mb-8">
+        <h2 className="text-3xl font-bold text-emerald-700 text-center mb-8">
             Available Hotels
         </h2>
         {
             hotels.length === 0 ? (
-                <p className="text-center text-gray-500 text-lg">
+                <p className="text-center text-emerald-500 text-lg">
                     No hotels available
                 </p>
             ) : (
@@ -52,7 +52,7 @@ return (
                                         {hotel.name}
                                     </h3>
 
-                                    <p className='text-blue-600 font-medium mb-3'>
+                                    <p className='text-emerald-400 font-medium mb-3'>
                                         Location: {hotel.location}
                                     </p>
 
@@ -62,7 +62,7 @@ return (
 
                                     <Link
                                         to={`/hotel/${hotel._id}`}
-                                        className='inline-block bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition'
+                                        className='inline-block border-2 border-emerald-500  text-emerald-500 px-5 py-2 rounded-lg hover:bg-emerald-200 hover:text-white transition'
                                     >
                                         View Details
                                     </Link>

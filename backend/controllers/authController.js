@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken')
 // REGISTER USER
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body
+        const { name, password, phone } = req.body
+        const email = req.body.email?.trim().toLowerCase()
 
         if (!name || !email || !password || !phone) {
             return res.status(400).json({
@@ -26,7 +27,8 @@ exports.register = async (req, res) => {
 
         if (!passwordRegex.test(password)) {
             return res.status(400).json({
-                message: 'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character'
+                message:
+                    'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character'
             })
         }
 
@@ -49,7 +51,7 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10)
 
         const user = await User.create({
-            name,
+            name: name.trim(),
             email,
             password: hashedPassword,
             phone
@@ -66,16 +68,20 @@ exports.register = async (req, res) => {
         })
 
     } catch (error) {
+        console.error(error)
+
         res.status(500).json({
-            message: error.message
+            message: 'Registration failed'
         })
     }
 }
 
+
 // LOGIN USER
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const email = req.body.email?.trim().toLowerCase()
+        const { password } = req.body
 
         if (!email || !password) {
             return res.status(400).json({
@@ -86,8 +92,8 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email })
 
         if (!user) {
-            return res.status(404).json({
-                message: 'User not found'
+            return res.status(401).json({
+                message: 'Invalid email or password'
             })
         }
 
@@ -98,7 +104,7 @@ exports.login = async (req, res) => {
 
         if (!isMatch) {
             return res.status(401).json({
-                message: 'Invalid password'
+                message: 'Invalid email or password'
             })
         }
 
@@ -113,7 +119,7 @@ exports.login = async (req, res) => {
             }
         )
 
-        res.json({
+        res.status(200).json({
             message: 'Login successful',
             token,
             user: {
@@ -125,8 +131,10 @@ exports.login = async (req, res) => {
         })
 
     } catch (error) {
+        console.error(error)
+
         res.status(500).json({
-            message: error.message
+            message: 'Login failed'
         })
     }
 }
