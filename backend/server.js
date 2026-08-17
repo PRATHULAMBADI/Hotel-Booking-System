@@ -1,5 +1,6 @@
 const dotenv = require('dotenv')
 dotenv.config()
+
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -7,6 +8,7 @@ const dns = require('dns')
 const path = require('path')
 
 const connectDB = require('./config/db')
+
 const userRoutes = require('./routes/userRoutes')
 const authRoutes = require('./routes/authRoutes')
 const hotelRoutes = require('./routes/hotelRoutes')
@@ -19,13 +21,18 @@ const paymentRoutes = require('./routes/paymentRoutes')
 
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
-
-
 connectDB()
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://hotel-booking-system-stayease.netlify.app'
+    ],
+    credentials: true
+}))
+
 app.use(express.json())
 app.use(cookieParser())
 
