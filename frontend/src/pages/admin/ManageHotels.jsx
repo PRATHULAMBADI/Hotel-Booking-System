@@ -311,8 +311,8 @@ function ManageHotels() {
                                         <img
                                             src={
                                                 hotel.image
-                                                    ? `http://localhost:5000${hotel.image}`
-                                                    : 'https://placehold.co/150x100?text=No+Image'
+                                                ? `https://hotel-booking-system-backend-bzcx.onrender.com${hotel.image}`
+                                                : 'https://placehold.co/600x400?text=No+Image'
                                             }
                                             alt={hotel.name}
                                             className="w-20 h-14 object-cover rounded"

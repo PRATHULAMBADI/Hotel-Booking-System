@@ -260,7 +260,7 @@ function ManageRooms() {
                                         {
                                             room.images?.length > 0 && (
                                                 <img
-                                                    src={`http://localhost:5000${room.images[0]}`}
+                                                    src={`https://hotel-booking-system-backend-bzcx.onrender.com${room.images[0]}`}
                                                     alt={room.roomType}
                                                     className="w-20 h-16 object-cover rounded"
                                                 />
