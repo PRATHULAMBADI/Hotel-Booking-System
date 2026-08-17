@@ -85,6 +85,13 @@ function HotelDetails() {
                                     key={room._id}
                                     className='bg-white rounded-xl shadow-lg p-6'
                                 >
+                                    {room.images && room.images.length > 0 && (
+                                        <img
+                                            src={`${import.meta.env.VITE_API_URL}${room.images[0]}`}
+                                            alt={room.roomType}
+                                            className='w-full h-52 object-cover'
+                                        />
+                                    )}
                                     <h3 className='text-2xl font-semibold mb-3'>
                                         {room.roomType}
                                     </h3>

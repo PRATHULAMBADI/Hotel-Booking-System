@@ -1,18 +1,17 @@
-import axios from 'axios'
+import axios from "axios";
 
 const api = axios.create({
-    // baseURL: 'http://localhost:5000/api'
-    baseURL: import.meta.env.VITE_API_URL
-})
+  baseURL: "https://hotel-booking-system-backend-bzcx.onrender.com/api",
+});
 
 api.interceptors.request.use((config) => {
-    const token = sessionStorage.getItem('token')
+  const token = sessionStorage.getItem("token");
 
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-    return config
-})
+  return config;
+});
 
-export default api
+export default api;
