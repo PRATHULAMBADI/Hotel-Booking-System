@@ -440,10 +440,14 @@ function Bookings() {
                         Booking Summary
                     </h3>
 
-                    <img
-                        src={room.images?.[0]}
-                        alt={room.roomType}
-                        className='w-full h-56 object-cover rounded-lg mb-5'
+                    <img 
+                        src={
+                            room.images?.[0]
+                                ? `https://hotel-booking-system-backend-bzcx.onrender.com${room.images[0]}`
+                                : 'https://placehold.co/600x400?text=No+Image'
+                        }
+                        alt={room.roomType} 
+                        className='w-full h-56 object-cover rounded-lg mb-5' 
                     />
 
                     <h4 className='text-xl font-semibold'>
