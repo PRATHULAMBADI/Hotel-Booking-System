@@ -39,7 +39,7 @@ return (
                                 <img
                                     src={
                                         hotel.image
-                                            ? `http://localhost:5000${hotel.image}`
+                                            ? `https://hotel-booking-system-backend-bzcx.onrender.com${hotel.image}`
                                             : 'https://placehold.co/600x400?text=No+Image'
                                     }
                                     alt={hotel.name}
