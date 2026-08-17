@@ -83,32 +83,37 @@ function HotelDetails() {
                             {rooms.map((room) => (
                                 <div
                                     key={room._id}
-                                    className='bg-white rounded-xl shadow-lg p-6'
+                                    className='bg-white rounded-xl shadow-lg overflow-hidden'
                                 >
-                                    {room.images && room.images.length > 0 && (
-                                        <img
-                                            src={`${import.meta.env.VITE_API_URL}${room.images[0]}`}
-                                            alt={room.roomType}
-                                            className='w-full h-52 object-cover'
-                                        />
-                                    )}
-                                    <h3 className='text-2xl font-semibold mb-3'>
-                                        {room.roomType}
-                                    </h3>
+                                    <img
+                                        src={
+                                            room.images && room.images.length > 0
+                                                ? `https://hotel-booking-system-backend-bzcx.onrender.com${room.images[0]}`
+                                                : 'https://placehold.co/600x400?text=No+Room+Image'
+                                        }
+                                        alt={room.roomType}
+                                        className='w-full h-52 object-cover'
+                                    />
 
-                                    <p className='text-gray-600 mb-2'>
-                                        Price: ₹{room.price}
-                                    </p>
+                                    <div className='p-6'>
+                                        <h3 className='text-2xl font-semibold mb-3'>
+                                            {room.roomType}
+                                        </h3>
 
-                                    <p className='text-gray-600 mb-4'>
-                                        {room.description}
-                                    </p>
+                                        <p className='text-gray-600 mb-2'>
+                                            Price: ₹{room.price} / night
+                                        </p>
 
-                                    <Link to={`/booking/${room._id}`}>
-                                        <button className='w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition'>
-                                            Book Now
-                                        </button>
-                                    </Link>
+                                        <p className='text-gray-600 mb-4 line-clamp-3'>
+                                            {room.description}
+                                        </p>
+
+                                        <Link to={`/booking/${room._id}`}>
+                                            <button className='w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition'>
+                                                Book Now
+                                            </button>
+                                        </Link>
+                                    </div>
                                 </div>
                             ))}
                         </div>
