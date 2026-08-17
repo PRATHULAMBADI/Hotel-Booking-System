@@ -23,13 +23,19 @@ function HotelDetails() {
             // setRooms(hotelRooms)
 
             const hotelRooms = roomResponse.data.rooms.filter(
-                (room) => room.hotelId._id === id
-            )
+    (room) => room.hotelId._id === id
+)
 
-            console.log("MY ROOMS:", hotelRooms)
+hotelRooms.forEach((room) => {
+    console.log(
+        room.roomType,
+        "=>",
+        room.images
+    )
+})
 
-            setRooms(hotelRooms)
-            
+setRooms(hotelRooms)
+
         } catch (error) {
             console.log(error.message)
         }
