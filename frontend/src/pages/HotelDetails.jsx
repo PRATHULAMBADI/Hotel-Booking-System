@@ -16,11 +16,20 @@ function HotelDetails() {
 
             const roomResponse = await api.get('/rooms')
 
+            // const hotelRooms = roomResponse.data.rooms.filter(
+            //     (room) => room.hotelId._id === id
+            // )
+
+            // setRooms(hotelRooms)
+
             const hotelRooms = roomResponse.data.rooms.filter(
                 (room) => room.hotelId._id === id
             )
 
+            console.log("MY ROOMS:", hotelRooms)
+
             setRooms(hotelRooms)
+            
         } catch (error) {
             console.log(error.message)
         }
@@ -86,13 +95,14 @@ function HotelDetails() {
                                     className='bg-white rounded-xl shadow-lg overflow-hidden'
                                 >
                                     <img
+                                                        
                                         src={
-                                            room.images && room.images.length > 0
+                                            room.images?.[0]
                                                 ? `https://hotel-booking-system-backend-bzcx.onrender.com${room.images[0]}`
-                                                : 'https://placehold.co/600x400?text=No+Room+Image'
+                                                : 'https://placehold.co/600x400?text=No+Image'
                                         }
-                                        alt={room.roomType}
-                                        className='w-full h-52 object-cover'
+                                        alt={room.roomType} 
+                                        className='w-full h-56 object-cover rounded-lg mb-5' 
                                     />
 
                                     <div className='p-6'>
