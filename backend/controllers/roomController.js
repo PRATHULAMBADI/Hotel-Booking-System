@@ -17,9 +17,12 @@ exports.createRoom = async (req, res) => {
 
             for (const file of req.files) {
 
-                const imageId = await uploadImage(file)
+                const imageId =
+                    await uploadImage(file)
 
-                images.push(`/api/images/${imageId}`)
+                images.push(
+                    `/api/images/${imageId}`
+                )
             }
         }
 
@@ -35,7 +38,10 @@ exports.createRoom = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error)
+        console.error(
+            'Create room error:',
+            error
+        )
 
         res.status(500).json({
             message: error.message
@@ -80,16 +86,18 @@ exports.updateRoom = async (req, res) => {
 
     try {
 
-        const updateData = {
-            ...req.body
-        }
-
-        const existingRoom = await Room.findById(req.params.id)
+        const existingRoom =
+            await Room.findById(req.params.id)
 
         if (!existingRoom) {
+
             return res.status(404).json({
                 message: 'Room not found'
             })
+        }
+
+        const updateData = {
+            ...req.body
         }
 
         if (req.files && req.files.length > 0) {
@@ -98,46 +106,46 @@ exports.updateRoom = async (req, res) => {
 
             for (const file of req.files) {
 
-                const imageId = await uploadImage(file)
+                const imageId =
+                    await uploadImage(file)
 
-                newImages.push(`/api/images/${imageId}`)
+                newImages.push(
+                    `/api/images/${imageId}`
+                )
             }
 
             updateData.images = newImages
 
-            // Delete old images
+            // Delete previous GridFS images
             if (existingRoom.images) {
 
-                for (const image of existingRoom.images) {
+                for (
+                    const image of existingRoom.images
+                ) {
 
-                    if (image.includes('/api/images/')) {
+                    if (
+                        image.includes('/api/images/')
+                    ) {
 
                         const oldImageId =
                             image.split('/').pop()
 
-                        try {
-
-                            await deleteImage(oldImageId)
-
-                        } catch (error) {
-
-                            console.log(
-                                'Old room image delete failed:',
-                                error.message
-                            )
-                        }
+                        await deleteImage(
+                            oldImageId
+                        )
                     }
                 }
             }
         }
 
-        const room = await Room.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            {
-                new: true
-            }
-        )
+        const room =
+            await Room.findByIdAndUpdate(
+                req.params.id,
+                updateData,
+                {
+                    new: true
+                }
+            )
 
         res.status(200).json({
             message: 'Room updated successfully',
@@ -146,14 +154,16 @@ exports.updateRoom = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error)
+        console.error(
+            'Update room error:',
+            error
+        )
 
         res.status(500).json({
             message: error.message
         })
     }
 }
-
 exports.deleteRoom = async (req, res) => {
     try {
         const room = await Room.findByIdAndDelete(req.params.id)
@@ -174,7 +184,6 @@ exports.deleteRoom = async (req, res) => {
     }
 }
 
-//Search room
 exports.searchRooms = async (req, res) => {
     try {
         const { location, checkIn, checkOut } = req.query
@@ -185,7 +194,6 @@ exports.searchRooms = async (req, res) => {
             })
         }
 
-        // Find hotels in the selected location
         const hotels = await Hotel.find({
             location: { $regex: location, $options: 'i' }
         })
@@ -200,7 +208,6 @@ exports.searchRooms = async (req, res) => {
 
         const hotelIds = hotels.map(hotel => hotel._id)
 
-        // Find rooms in those hotels
         const rooms = await Room.find({
             hotelId: { $in: hotelIds }
         }).populate('hotelId')

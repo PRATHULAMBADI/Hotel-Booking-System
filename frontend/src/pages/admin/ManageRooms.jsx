@@ -206,7 +206,7 @@ function ManageRooms() {
                         onChange={handleImageChange}
                         className="w-full border p-2 rounded"
                     />
-                    <label className="flex items-center gap-2">
+                    {/* <label className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             name="availability"
@@ -214,7 +214,7 @@ function ManageRooms() {
                             onChange={handleChange}
                         />
                         Available
-                    </label>
+                    </label> */}
                     <button
                         className="bg-blue-600 text-white px-5 py-2 rounded"
                     >

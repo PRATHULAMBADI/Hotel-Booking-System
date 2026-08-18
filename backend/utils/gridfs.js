@@ -6,7 +6,7 @@ let bucket = null
 const getBucket = () => {
 
     if (!mongoose.connection.db) {
-        throw new Error('MongoDB connection is not ready')
+        throw new Error('MongoDB database connection is not ready')
     }
 
     if (!bucket) {
@@ -21,43 +21,59 @@ const getBucket = () => {
     return bucket
 }
 
-const uploadImage = (file) => {
 
-    return new Promise((resolve, reject) => {
+const uploadImage = async (file) => {
 
-        try {
-
-            const bucket = getBucket()
-
-            const uploadStream = bucket.openUploadStream(
-                file.originalname,
-                {
-                    contentType: file.mimetype
-                }
-            )
-
-            uploadStream.on('error', reject)
-
-            uploadStream.on('finish', () => {
-                resolve(uploadStream.id.toString())
-            })
-
-            uploadStream.end(file.buffer)
-
-        } catch (error) {
-            reject(error)
-        }
-    })
-}
-
-const deleteImage = async (fileId) => {
+    if (!file || !file.buffer) {
+        throw new Error('No image file received')
+    }
 
     const bucket = getBucket()
 
-    await bucket.delete(
-        new ObjectId(fileId)
-    )
+    return new Promise((resolve, reject) => {
+
+        const uploadStream = bucket.openUploadStream(
+            file.originalname,
+            {
+                contentType: file.mimetype
+            }
+        )
+
+        uploadStream.on('error', reject)
+
+        uploadStream.on('finish', () => {
+            resolve(uploadStream.id.toString())
+        })
+
+        uploadStream.end(file.buffer)
+    })
 }
+
+
+const deleteImage = async (imageId) => {
+
+    if (!imageId) {
+        return
+    }
+
+    const bucket = getBucket()
+
+    try {
+
+        await bucket.delete(
+            new ObjectId(imageId)
+        )
+
+    } catch (error) {
+
+        // Image may already be deleted
+        console.log(
+            'GridFS delete warning:',
+            error.message
+        )
+    }
+}
+
 
 module.exports = {
     getBucket,

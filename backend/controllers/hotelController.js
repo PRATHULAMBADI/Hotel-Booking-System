@@ -12,9 +12,11 @@ exports.createHotel = async (req, res) => {
 
         if (req.file) {
 
-            const imageId = await uploadImage(req.file)
+            const imageId =
+                await uploadImage(req.file)
 
-            image = `/api/images/${imageId}`
+            image =
+                `/api/images/${imageId}`
         }
 
         const hotel = await Hotel.create({
@@ -29,7 +31,10 @@ exports.createHotel = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error)
+        console.error(
+            'Create hotel error:',
+            error
+        )
 
         res.status(500).json({
             message: error.message
@@ -74,51 +79,51 @@ exports.updateHotel = async (req, res) => {
 
     try {
 
-        const updateData = {
-            ...req.body
-        }
-
-        const existingHotel = await Hotel.findById(req.params.id)
+        const existingHotel =
+            await Hotel.findById(req.params.id)
 
         if (!existingHotel) {
+
             return res.status(404).json({
                 message: 'Hotel not found'
             })
         }
 
+        const updateData = {
+            ...req.body
+        }
+
         if (req.file) {
 
-            const imageId = await uploadImage(req.file)
+            const imageId =
+                await uploadImage(req.file)
 
-            updateData.image = `/api/images/${imageId}`
+            updateData.image =
+                `/api/images/${imageId}`
 
-            // Delete old GridFS image
+            // Delete old GridFS image only
             if (
                 existingHotel.image &&
                 existingHotel.image.includes('/api/images/')
             ) {
 
                 const oldImageId =
-                    existingHotel.image.split('/').pop()
+                    existingHotel.image
+                        .split('/')
+                        .pop()
 
-                try {
-                    await deleteImage(oldImageId)
-                } catch (error) {
-                    console.log(
-                        'Old hotel image delete failed:',
-                        error.message
-                    )
-                }
+                await deleteImage(oldImageId)
             }
         }
 
-        const hotel = await Hotel.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            {
-                new: true
-            }
-        )
+        const hotel =
+            await Hotel.findByIdAndUpdate(
+                req.params.id,
+                updateData,
+                {
+                    new: true
+                }
+            )
 
         res.status(200).json({
             message: 'Hotel updated successfully',
@@ -127,28 +132,11 @@ exports.updateHotel = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error)
+        console.error(
+            'Update hotel error:',
+            error
+        )
 
-        res.status(500).json({
-            message: error.message
-        })
-    }
-}
-
-exports.deleteHotel = async (req, res) => {
-    try {
-        const hotel = await Hotel.findByIdAndDelete(req.params.id)
-
-        if (!hotel) {
-            return res.status(404).json({
-                message: 'Hotel not found'
-            })
-        }
-
-        res.status(200).json({
-            message: 'Hotel deleted successfully'
-        })
-    } catch (error) {
         res.status(500).json({
             message: error.message
         })

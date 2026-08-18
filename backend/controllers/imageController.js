@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 const { ObjectId } = require('mongodb')
-const { getBucket } = require('../utils/gridfs')
+
+const {
+    getBucket
+} = require('../utils/gridfs')
+
 
 exports.getImage = async (req, res) => {
 
@@ -9,6 +13,7 @@ exports.getImage = async (req, res) => {
         const { id } = req.params
 
         if (!mongoose.isValidObjectId(id)) {
+
             return res.status(400).json({
                 message: 'Invalid image ID'
             })
@@ -16,11 +21,14 @@ exports.getImage = async (req, res) => {
 
         const bucket = getBucket()
 
-        const files = await bucket.find({
-            _id: new ObjectId(id)
-        }).toArray()
+        const files = await bucket
+            .find({
+                _id: new ObjectId(id)
+            })
+            .toArray()
 
         if (!files || files.length === 0) {
+
             return res.status(404).json({
                 message: 'Image not found'
             })
@@ -30,22 +38,42 @@ exports.getImage = async (req, res) => {
 
         res.set(
             'Content-Type',
-            file.contentType || 'image/jpeg'
+            file.contentType || 'application/octet-stream'
         )
 
-        const downloadStream = bucket.openDownloadStream(
-            new ObjectId(id)
+        res.set(
+            'Cache-Control',
+            'public, max-age=31536000'
         )
 
-        downloadStream.on('error', () => {
-            res.status(404).end()
-        })
+        const downloadStream =
+            bucket.openDownloadStream(
+                new ObjectId(id)
+            )
+
+        downloadStream.on(
+            'error',
+            (error) => {
+
+                console.error(
+                    'GridFS download error:',
+                    error
+                )
+
+                if (!res.headersSent) {
+                    res.status(404).end()
+                }
+            }
+        )
 
         downloadStream.pipe(res)
 
     } catch (error) {
 
-        console.error('Get image error:', error)
+        console.error(
+            'Get image error:',
+            error
+        )
 
         res.status(500).json({
             message: error.message
