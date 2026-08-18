@@ -5,7 +5,6 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const dns = require('dns')
-const path = require('path')
 
 const connectDB = require('./config/db')
 
@@ -18,6 +17,7 @@ const reviewRoutes = require('./routes/reviewRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const offerRoutes = require('./routes/offerRoutes')
 const paymentRoutes = require('./routes/paymentRoutes')
+const imageRoutes = require('./routes/imageRoutes')
 
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
@@ -52,11 +52,7 @@ app.use('/api/reviews', reviewRoutes)
 app.use('/api/offers', offerRoutes)
 app.use('/api/admin',adminRoutes)
 app.use('/api/payments', paymentRoutes)
-app.use(
-    '/uploads',
-    express.static(path.join(__dirname, 'uploads'))
-)
-
+app.use('/api/images', imageRoutes)
 
 const PORT = process.env.PORT || 5000
 

@@ -1,10 +1,25 @@
 const Hotel = require('../models/Hotel')
+const {
+    uploadImage,
+    deleteImage
+} = require('../utils/gridfs')
 
 exports.createHotel = async (req, res) => {
+
     try {
+
+        let image = ''
+
+        if (req.file) {
+
+            const imageId = await uploadImage(req.file)
+
+            image = `/api/images/${imageId}`
+        }
+
         const hotel = await Hotel.create({
             ...req.body,
-            image: req.file ? `/uploads/${req.file.filename}` : ''
+            image
         })
 
         res.status(201).json({
@@ -13,6 +28,9 @@ exports.createHotel = async (req, res) => {
         })
 
     } catch (error) {
+
+        console.error(error)
+
         res.status(500).json({
             message: error.message
         })
@@ -53,29 +71,54 @@ exports.getHotelById = async (req, res) => {
 }
 
 exports.updateHotel = async (req, res) => {
+
     try {
 
         const updateData = {
             ...req.body
         }
 
+        const existingHotel = await Hotel.findById(req.params.id)
+
+        if (!existingHotel) {
+            return res.status(404).json({
+                message: 'Hotel not found'
+            })
+        }
+
         if (req.file) {
-            updateData.image = `/uploads/${req.file.filename}`
+
+            const imageId = await uploadImage(req.file)
+
+            updateData.image = `/api/images/${imageId}`
+
+            // Delete old GridFS image
+            if (
+                existingHotel.image &&
+                existingHotel.image.includes('/api/images/')
+            ) {
+
+                const oldImageId =
+                    existingHotel.image.split('/').pop()
+
+                try {
+                    await deleteImage(oldImageId)
+                } catch (error) {
+                    console.log(
+                        'Old hotel image delete failed:',
+                        error.message
+                    )
+                }
+            }
         }
 
         const hotel = await Hotel.findByIdAndUpdate(
             req.params.id,
             updateData,
             {
-                returnDocument: 'after'
+                new: true
             }
         )
-
-        if (!hotel) {
-            return res.status(404).json({
-                message: 'Hotel not found'
-            })
-        }
 
         res.status(200).json({
             message: 'Hotel updated successfully',

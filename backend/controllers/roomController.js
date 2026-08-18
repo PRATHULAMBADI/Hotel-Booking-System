@@ -2,31 +2,47 @@ const Room = require('../models/Room')
 const Hotel = require('../models/Hotel')
 const Booking = require('../models/Booking')
 
-// Create room
+const {
+    uploadImage,
+    deleteImage
+} = require('../utils/gridfs')
+
 exports.createRoom = async (req, res) => {
+
     try {
+
         const images = []
-        if (req.files) {
-            req.files.forEach(file => {
-                images.push(`/uploads/${file.filename}`)
-            })
+
+        if (req.files && req.files.length > 0) {
+
+            for (const file of req.files) {
+
+                const imageId = await uploadImage(file)
+
+                images.push(`/api/images/${imageId}`)
+            }
         }
+
         const room = await Room.create({
             ...req.body,
             images
         })
+
         res.status(201).json({
             message: 'Room created successfully',
             room
         })
+
     } catch (error) {
+
+        console.error(error)
+
         res.status(500).json({
             message: error.message
         })
     }
 }
 
-// Get all rooms
 exports.getRooms = async (req, res) => {
     try {
         const rooms = await Room.find().populate('hotelId')
@@ -42,7 +58,6 @@ exports.getRooms = async (req, res) => {
     }
 }
 
-// Get single room
 exports.getRoomById = async (req, res) => {
     try {
         const room = await Room.findById(req.params.id).populate('hotelId')
@@ -61,20 +76,61 @@ exports.getRoomById = async (req, res) => {
     }
 }
 
-// Update room
 exports.updateRoom = async (req, res) => {
+
     try {
+
         const updateData = {
             ...req.body
         }
-        if (req.files && req.files.length > 0) {
 
-            updateData.images = []
+        const existingRoom = await Room.findById(req.params.id)
 
-            req.files.forEach(file => {
-                updateData.images.push(`/uploads/${file.filename}`)
+        if (!existingRoom) {
+            return res.status(404).json({
+                message: 'Room not found'
             })
         }
+
+        if (req.files && req.files.length > 0) {
+
+            const newImages = []
+
+            for (const file of req.files) {
+
+                const imageId = await uploadImage(file)
+
+                newImages.push(`/api/images/${imageId}`)
+            }
+
+            updateData.images = newImages
+
+            // Delete old images
+            if (existingRoom.images) {
+
+                for (const image of existingRoom.images) {
+
+                    if (image.includes('/api/images/')) {
+
+                        const oldImageId =
+                            image.split('/').pop()
+
+                        try {
+
+                            await deleteImage(oldImageId)
+
+                        } catch (error) {
+
+                            console.log(
+                                'Old room image delete failed:',
+                                error.message
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         const room = await Room.findByIdAndUpdate(
             req.params.id,
             updateData,
@@ -82,22 +138,22 @@ exports.updateRoom = async (req, res) => {
                 new: true
             }
         )
-        if (!room) {
-            return res.status(404).json({
-                message: 'Room not found'
-            })
-        }
+
         res.status(200).json({
             message: 'Room updated successfully',
             room
         })
+
     } catch (error) {
+
+        console.error(error)
+
         res.status(500).json({
             message: error.message
         })
     }
 }
-// Delete room
+
 exports.deleteRoom = async (req, res) => {
     try {
         const room = await Room.findByIdAndDelete(req.params.id)
