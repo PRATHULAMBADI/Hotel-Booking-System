@@ -101,7 +101,6 @@ exports.updateHotel = async (req, res) => {
             updateData.image =
                 `/api/images/${imageId}`
 
-            // Delete old GridFS image only
             if (
                 existingHotel.image &&
                 existingHotel.image.includes('/api/images/')
@@ -134,6 +133,41 @@ exports.updateHotel = async (req, res) => {
 
         console.error(
             'Update hotel error:',
+            error
+        )
+
+        res.status(500).json({
+            message: error.message
+        })
+    }
+}
+exports.deleteHotel = async (req, res) => {
+    try {
+        const hotel = await Hotel.findById(req.params.id)
+
+        if (!hotel) {
+            return res.status(404).json({
+                message: 'Hotel not found'
+            })
+        }
+
+        if (
+            hotel.image &&
+            hotel.image.includes('/api/images/')
+        ) {
+            const imageId = hotel.image.split('/').pop()
+
+            await deleteImage(imageId)
+        }
+
+        await Hotel.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({
+            message: 'Hotel deleted successfully'
+        })
+    } catch (error) {
+        console.error(
+            'Delete hotel error:',
             error
         )
 
