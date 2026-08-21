@@ -544,7 +544,11 @@ function Profile() {
 
                                         <p className='font-medium'>
                                             {profile.dateOfBirth
-                                                ? new Date(profile.dateOfBirth).toLocaleDateString()
+                                                ? new Date(profile.dateOfBirth).toLocaleDateString('en-GB', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                }).replace(/\//g, '-')
                                                 : '-'}
                                         </p>
                                     </div>
