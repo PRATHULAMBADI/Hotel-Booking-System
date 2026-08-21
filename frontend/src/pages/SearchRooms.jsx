@@ -15,6 +15,7 @@ function SearchRooms() {
     const [locationsLoading, setLocationsLoading] = useState(true)
 
     const today = new Date().toISOString().split('T')[0]
+    const backendUrl = 'https://hotel-booking-system-backend-bzcx.onrender.com'
 
     useEffect(() => {
         fetchLocations()
@@ -109,117 +110,204 @@ function SearchRooms() {
     }
 
     return (
-        <div className='min-h-screen bg-slate-50 px-6 py-10'>
-            <div className='max-w-5xl mx-auto'>
-                <h2 className='text-3xl font-bold text-slate-800 text-center mb-8'>
-                    Search Available Rooms
-                </h2>
+        <div className='min-h-screen bg-slate-50 px-4 md:px-6 py-10'>
+            <div className='max-w-6xl mx-auto'>
+
+                <div className='text-center mb-8'>
+                    <h1 className='text-3xl md:text-4xl font-bold text-slate-800'>
+                        Find Your Perfect Room
+                    </h1>
+
+                    <p className='text-gray-500 mt-2'>
+                        Search available rooms by location and stay dates
+                    </p>
+                </div>
 
                 <form
                     onSubmit={searchRooms}
-                    className='bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-4 mb-10'
+                    className='bg-white rounded-2xl shadow-md p-6 md:p-8 mb-10'
                 >
-                    <div className='relative'>
-                        <select
-                            name='location'
-                            value={searchData.location}
-                            onChange={handleChange}
-                            disabled={locationsLoading}
-                            className='w-full appearance-none px-4 py-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100'
-                            required
-                        >
-                            <option value=''>
-                                {locationsLoading
-                                    ? 'Loading locations...'
-                                    : 'Select Location'}
-                            </option>
+                    <div className='grid grid-cols-1 md:grid-cols-4 gap-5'>
 
-                            {locations.map(location => (
-                                <option
-                                    key={location}
-                                    value={location}
-                                >
-                                    {location}
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>
+                                Location
+                            </label>
+
+                            <select
+                                name='location'
+                                value={searchData.location}
+                                onChange={handleChange}
+                                disabled={locationsLoading}
+                                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100'
+                                required
+                            >
+                                <option value=''>
+                                    {locationsLoading
+                                        ? 'Loading locations...'
+                                        : 'Select Location'}
                                 </option>
-                            ))}
-                        </select>
 
-                        <span className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm'>
-                            ▼
-                        </span>
+                                {locations.map(location => (
+                                    <option
+                                        key={location}
+                                        value={location}
+                                    >
+                                        {location}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>
+                                Check In
+                            </label>
+
+                            <input
+                                type='date'
+                                name='checkIn'
+                                value={searchData.checkIn}
+                                min={today}
+                                onChange={handleChange}
+                                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500'
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>
+                                Check Out
+                            </label>
+
+                            <input
+                                type='date'
+                                name='checkOut'
+                                value={searchData.checkOut}
+                                min={searchData.checkIn || today}
+                                onChange={handleChange}
+                                disabled={!searchData.checkIn}
+                                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed'
+                                required
+                            />
+                        </div>
+
+                        <div className='flex items-end'>
+                            <button
+                                type='submit'
+                                disabled={loading || locationsLoading}
+                                className='w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
+                            >
+                                {loading ? 'Searching...' : 'Search Rooms'}
+                            </button>
+                        </div>
+
                     </div>
-
-                    <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                        type='date'
-                        name='checkIn'
-                        value={searchData.checkIn}
-                        min={today}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <input
-                        className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed'
-                        type='date'
-                        name='checkOut'
-                        value={searchData.checkOut}
-                        min={searchData.checkIn || today}
-                        onChange={handleChange}
-                        disabled={!searchData.checkIn}
-                        required
-                    />
-
-                    <button
-                        type='submit'
-                        disabled={loading || locationsLoading}
-                        className='bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
-                    >
-                        {loading ? 'Searching...' : 'Search'}
-                    </button>
                 </form>
 
-                <h2 className='text-3xl font-bold text-slate-800 mb-6'>
-                    Available Rooms
-                </h2>
+                <div className='flex items-center justify-between mb-6'>
+                    <div>
+                        <h2 className='text-2xl md:text-3xl font-bold text-slate-800'>
+                            Available Rooms
+                        </h2>
+
+                        {rooms.length > 0 && (
+                            <p className='text-gray-500 mt-1'>
+                                {rooms.length} room{rooms.length !== 1 ? 's' : ''} available
+                            </p>
+                        )}
+                    </div>
+                </div>
 
                 {rooms.length === 0 ? (
-                    <p className='text-gray-500'>
-                        No hotels found in this location
-                    </p>
+                    <div className='bg-white rounded-2xl shadow-md p-10 text-center'>
+                        <div className='text-5xl mb-4'>
+                            🏨
+                        </div>
+
+                        <h3 className='text-xl font-semibold text-slate-800'>
+                            No rooms found
+                        </h3>
+
+                        <p className='text-gray-500 mt-2'>
+                            Select a location and stay dates to find available rooms.
+                        </p>
+                    </div>
                 ) : (
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+
                         {rooms.map(room => (
                             <div
                                 key={room._id}
-                                className='bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition'
+                                className='bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition'
                             >
-                                <h3 className='text-xl font-semibold text-slate-800 mb-3'>
-                                    {room.hotelId.name}
-                                </h3>
 
-                                <p className='text-gray-600 mb-2'>
-                                    Room Type: {room.roomType}
-                                </p>
+                                <img
+                                    src={
+                                        room.images?.[0]
+                                            ? `${backendUrl}${room.images[0]}`
+                                            : 'https://placehold.co/600x400?text=No+Room+Image'
+                                    }
+                                    alt={room.roomType}
+                                    className='w-full h-56 object-cover'
+                                />
 
-                                <p className='text-green-600 font-semibold mb-2'>
-                                    Price: ₹{room.price}
-                                </p>
+                                <div className='p-6'>
 
-                                <p className='text-gray-600 mb-4'>
-                                    Capacity: {room.capacity}
-                                </p>
+                                    <p className='text-sm text-green-600 font-medium mb-1'>
+                                        {room.hotelId?.location || 'Hotel'}
+                                    </p>
 
-                                <Link
-                                    to={`/booking/${room._id}`}
-                                    className='inline-block bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition'
-                                >
-                                    Book Now
-                                </Link>
+                                    <h3 className='text-xl font-bold text-slate-800 mb-2'>
+                                        {room.hotelId?.name || 'Hotel'}
+                                    </h3>
+
+                                    <h4 className='text-lg font-semibold text-slate-700 mb-3'>
+                                        {room.roomType}
+                                    </h4>
+
+                                    <p className='text-gray-600 text-sm line-clamp-3 mb-4'>
+                                        {room.description || 'Comfortable room with modern facilities.'}
+                                    </p>
+
+                                    <div className='flex justify-between items-center mb-5'>
+
+                                        <div>
+                                            <p className='text-sm text-gray-500'>
+                                                Price per night
+                                            </p>
+
+                                            <p className='text-xl font-bold text-green-600'>
+                                                ₹{room.price}
+                                            </p>
+                                        </div>
+
+                                        <div className='text-right'>
+                                            <p className='text-sm text-gray-500'>
+                                                Guests
+                                            </p>
+
+                                            <p className='font-semibold text-slate-700'>
+                                                Up to {room.capacity}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <Link
+                                        to={`/booking/${room._id}`}
+                                        className='block w-full bg-green-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-green-700 transition'
+                                    >
+                                        Book Now
+                                    </Link>
+
+                                </div>
                             </div>
                         ))}
+
                     </div>
                 )}
+
             </div>
         </div>
     )
