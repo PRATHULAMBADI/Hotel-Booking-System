@@ -101,9 +101,22 @@ function Profile() {
     }
 
     const handleSave = async (e) => {
-        e.preventDefault()
+    e.preventDefault()
 
-        setSaving(true)
+    if (formData.dateOfBirth) {
+        const today = new Date()
+        const selectedDate = new Date(formData.dateOfBirth)
+
+        today.setHours(0, 0, 0, 0)
+        selectedDate.setHours(0, 0, 0, 0)
+
+        if (selectedDate > today) {
+            setError('Date of birth cannot be a future date')
+            return
+        }
+    }
+
+    setSaving(true)
         setMessage('')
         setError('')
 
@@ -341,6 +354,7 @@ function Profile() {
                                             type='date'
                                             name='dateOfBirth'
                                             value={formData.dateOfBirth}
+                                            max={new Date().toISOString().split('T')[0]}
                                             onChange={handleChange}
                                             className='w-full px-4 py-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                                         />

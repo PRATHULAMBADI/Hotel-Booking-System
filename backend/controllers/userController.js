@@ -49,9 +49,22 @@ exports.updateProfile = async (req, res) => {
         }
 
         if (dateOfBirth !== undefined) {
+            if (dateOfBirth) {
+                const today = new Date()
+                const selectedDate = new Date(dateOfBirth)
+
+                today.setHours(0, 0, 0, 0)
+                selectedDate.setHours(0, 0, 0, 0)
+
+                if (selectedDate > today) {
+                    return res.status(400).json({
+                        message: 'Date of birth cannot be a future date'
+                    })
+                }
+            }
+
             user.dateOfBirth = dateOfBirth || null
         }
-
         if (gender !== undefined) {
             user.gender = gender
         }
