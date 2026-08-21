@@ -114,11 +114,11 @@ function SearchRooms() {
             <div className='max-w-6xl mx-auto'>
 
                 <div className='text-center mb-8'>
-                    <h1 className='text-3xl md:text-4xl font-bold text-slate-800'>
+                    <h1 className='text-3xl md:text-4xl font-bold text-emerald-800'>
                         Find Your Perfect Room
                     </h1>
 
-                    <p className='text-gray-500 mt-2'>
+                    <p className='text-emerald-500 mt-2'>
                         Search available rooms by location and stay dates
                     </p>
                 </div>
@@ -139,7 +139,7 @@ function SearchRooms() {
                                 value={searchData.location}
                                 onChange={handleChange}
                                 disabled={locationsLoading}
-                                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100'
+                                className='w-full px-4 py-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100'
                                 required
                             >
                                 <option value=''>
