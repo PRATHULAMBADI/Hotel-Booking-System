@@ -9,14 +9,17 @@ function Profile() {
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
     const [isEditing, setIsEditing] = useState(false)
+
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
     })
+
     const [changingPassword, setChangingPassword] = useState(false)
     const [passwordMessage, setPasswordMessage] = useState('')
     const [passwordError, setPasswordError] = useState('')
+
     const [showPassword, setShowPassword] = useState({
         current: false,
         new: false,
@@ -64,22 +67,16 @@ function Profile() {
     const handleChange = (e) => {
         const { name, value } = e.target
 
-        if (name === 'name') {
-            if (!/^[A-Za-z ]*$/.test(value)) {
-                return
-            }
+        if (name === 'name' && !/^[A-Za-z ]*$/.test(value)) {
+            return
         }
 
-        if (name === 'phone') {
-            if (!/^\d{0,10}$/.test(value)) {
-                return
-            }
+        if (name === 'phone' && !/^\d{0,10}$/.test(value)) {
+            return
         }
 
-        if (name === 'pincode') {
-            if (!/^\d{0,6}$/.test(value)) {
-                return
-            }
+        if (name === 'pincode' && !/^\d{0,6}$/.test(value)) {
+            return
         }
 
         setFormData({
@@ -101,24 +98,25 @@ function Profile() {
     }
 
     const handleSave = async (e) => {
-    e.preventDefault()
+        e.preventDefault()
 
-    if (formData.dateOfBirth) {
-        const today = new Date()
-        const selectedDate = new Date(formData.dateOfBirth)
-
-        today.setHours(0, 0, 0, 0)
-        selectedDate.setHours(0, 0, 0, 0)
-
-        if (selectedDate > today) {
-            setError('Date of birth cannot be a future date')
-            return
-        }
-    }
-
-    setSaving(true)
         setMessage('')
         setError('')
+
+        if (formData.dateOfBirth) {
+            const today = new Date()
+            const selectedDate = new Date(formData.dateOfBirth)
+
+            today.setHours(0, 0, 0, 0)
+            selectedDate.setHours(0, 0, 0, 0)
+
+            if (selectedDate > today) {
+                setError('Date of birth cannot be a future date')
+                return
+            }
+        }
+
+        setSaving(true)
 
         try {
             const response = await api.put('/users/profile', {
@@ -214,6 +212,20 @@ function Profile() {
             ...showPassword,
             [field]: !showPassword[field]
         })
+    }
+
+    const formatDateOfBirth = (date) => {
+        if (!date) {
+            return '-'
+        }
+
+        const dateObject = new Date(date)
+
+        const day = String(dateObject.getDate()).padStart(2, '0')
+        const month = String(dateObject.getMonth() + 1).padStart(2, '0')
+        const year = dateObject.getFullYear()
+
+        return `${day}-${month}-${year}`
     }
 
     if (loading) {
@@ -543,13 +555,7 @@ function Profile() {
                                         </p>
 
                                         <p className='font-medium'>
-                                            {profile.dateOfBirth
-                                                ? new Date(profile.dateOfBirth).toLocaleDateString('en-GB', {
-                                                    day: '2-digit',
-                                                    month: '2-digit',
-                                                    year: 'numeric'
-                                                }).replace(/\//g, '-')
-                                                : '-'}
+                                            {formatDateOfBirth(profile.dateOfBirth)}
                                         </p>
                                     </div>
                                 </div>
