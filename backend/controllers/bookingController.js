@@ -3,7 +3,6 @@ const Room = require('../models/Room')
 const User = require('../models/User')
 const sendEmail = require('../utils/sendEmail')
 
-// Create Booking
 exports.createBooking = async (req, res) => {
     try {
         const {
@@ -203,7 +202,6 @@ exports.createBooking = async (req, res) => {
 }
 
 
-// Get My Bookings
 exports.getMyBookings = async (req, res) => {
 
     try {
@@ -231,7 +229,6 @@ exports.getMyBookings = async (req, res) => {
 
 }
 
-// Cancel Booking
 exports.cancelBooking = async (req, res) => {
 
     try {
@@ -283,7 +280,6 @@ exports.cancelBooking = async (req, res) => {
 }
 
 
-// Get All Bookings (Admin)
 exports.getAllBookings = async (req, res) => {
 
     try {
